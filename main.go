@@ -38,6 +38,7 @@ func main() {
 
 	var hostsLines []string
 	var hostExists bool
+	var hostChanged bool
 	hostsScanner := bufio.NewScanner(hostsFile)
 	for hostsScanner.Scan() {
 		line := hostsScanner.Text()
@@ -45,6 +46,7 @@ func main() {
 			currentWinIP := ipPattern.FindString(line)
 			if currentWinIP != winIP {
 				line = fmt.Sprintf("%s\t%s", winIP, HOSTNAME)
+				hostChanged = true
 			}
 			hostExists = true
 		}
@@ -56,6 +58,10 @@ func main() {
 
 	if !hostExists {
 		hostsLines = append(hostsLines, fmt.Sprintf("%s\t%s", winIP, HOSTNAME))
+	}
+
+	if hostExists && !hostChanged {
+		return
 	}
 
 	if err := hostsFile.Truncate(0); err != nil {
